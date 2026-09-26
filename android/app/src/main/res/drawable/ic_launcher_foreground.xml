@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A surveyed plot: four sides and the diagonal, with chain ticks along the base. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="108dp"
+    android:height="108dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+    <path
+        android:fillColor="#33FFFFFF"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="3.5"
+        android:strokeLineJoin="round"
+        android:pathData="M35,70 L69,74 L74,37 L41,33 Z" />
+    <path
+        android:strokeColor="#A9B8FF"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:pathData="M35,70 L74,37" />
+    <path
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="2"
+        android:strokeLineCap="round"
+        android:pathData="M36,80 L72,80 M36,80 L36,77 M45,80 L45,78 M54,80 L54,77 M63,80 L63,78 M72,80 L72,77" />
+</vector>

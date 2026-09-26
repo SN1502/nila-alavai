@@ -1,0 +1,24 @@
+{
+  "name": "nila-alavai",
+  "private": true,
+  "version": "1.0.0",
+  "description": "Tamil–English land area converter: kuzhi, ma, kani, veli, cent, ground, acre, hectare, are and more.",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "node --test tests/*.test.js",
+    "build:single": "node scripts/build-single.mjs",
+    "build:android": "node scripts/build-single.mjs --inline-react && node -e \"require('fs').copyFileSync('dist-single/nila-alavai.offline.html','android/app/src/main/assets/index.html')\""
+  },
+  "dependencies": {
+    "react": "18.3.1",
+    "react-dom": "18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "esbuild": "^0.24.2",
+    "vite": "^6.0.7"
+  }
+}
