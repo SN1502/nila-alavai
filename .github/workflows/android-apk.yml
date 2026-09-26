@@ -12,9 +12,9 @@ jobs:
   apk:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
 
-      - uses: actions/setup-java@v4
+      - uses: actions/setup-java@v5
         with:
           distribution: temurin
           java-version: '17'
@@ -24,7 +24,28 @@ jobs:
         working-directory: android
         run: |
           chmod +x gradlew
-          ./gradlew assembleDebug --no-daemon
+          set -o pipefail
+          ./gradlew assembleDebug --no-daemon --console=plain 2>&1 | tee ../gradle-build.log
+
+      # If the build fails, show Gradle's own explanation as an error on the run.
+      - name: Report build error
+        if: failure()
+        run: |
+          python3 - <<'PY'
+          import re
+          try:
+              log = open('gradle-build.log', encoding='utf-8', errors='replace').read()
+          except FileNotFoundError:
+              raise SystemExit(0)
+          def emit(title, text):
+              text = text.strip()[:3500].replace('%', '%25').replace('\r', '').replace('\n', '%0A')
+              print(f'::error title={title}::{text}')
+          m = re.search(r'\* What went wrong:(.*?)(\* Try:|\Z)', log, re.S)
+          emit('Gradle build failed', m.group(1) if m else log[-3000:])
+          errs = [l for l in log.splitlines() if 'error:' in l or 'ERROR:' in l or 'AAPT' in l][:25]
+          if errs:
+              emit('Compiler errors', '\n'.join(errs))
+          PY
 
       - name: Name the APK
         run: cp android/app/build/outputs/apk/debug/app-debug.apk nila-alavai.apk
