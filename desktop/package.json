@@ -1,0 +1,56 @@
+{
+  "name": "nila-alavai-desktop",
+  "productName": "Nila Alavai",
+  "version": "1.0.0",
+  "description": "நில அளவை — Tamil–English land area, price and registration cost calculator",
+  "author": "Surya",
+  "license": "UNLICENSED",
+  "private": true,
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "dist": "electron-builder --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "22.3.27",
+    "electron-builder": "24.13.3"
+  },
+  "build": {
+    "appId": "com.nilaalavai.desktop",
+    "productName": "Nila Alavai",
+    "copyright": "Nila Alavai",
+    "files": [
+      "main.js",
+      "app/**/*"
+    ],
+    "directories": {
+      "buildResources": "build",
+      "output": "release"
+    },
+    "win": {
+      "icon": "build/icon.ico",
+      "target": [
+        {
+          "target": "nsis",
+          "arch": ["x64", "ia32"]
+        },
+        {
+          "target": "portable",
+          "arch": ["ia32"]
+        }
+      ]
+    },
+    "nsis": {
+      "oneClick": false,
+      "perMachine": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true,
+      "createStartMenuShortcut": true,
+      "shortcutName": "Nila Alavai",
+      "artifactName": "Nila-Alavai-Setup-${version}.${ext}"
+    },
+    "portable": {
+      "artifactName": "Nila-Alavai-Portable-${version}.${ext}"
+    }
+  }
+}

@@ -1,4 +1,4 @@
-name: Build Android APK
+name: Build apps
 
 on:
   push:
@@ -10,6 +10,7 @@ permissions:
 
 jobs:
   apk:
+    name: Android APK
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v5
@@ -25,42 +26,89 @@ jobs:
         run: |
           chmod +x gradlew
           set -o pipefail
-          ./gradlew assembleDebug --no-daemon --console=plain 2>&1 | tee ../gradle-build.log
+          ./gradlew assembleDebug --no-daemon --console=plain 2>&1 | tee ../build.log
 
-      # If the build fails, show Gradle's own explanation as an error on the run.
       - name: Report build error
         if: failure()
-        run: |
-          python3 - <<'PY'
-          import re
-          try:
-              log = open('gradle-build.log', encoding='utf-8', errors='replace').read()
-          except FileNotFoundError:
-              raise SystemExit(0)
-          def emit(title, text):
-              text = text.strip()[:3500].replace('%', '%25').replace('\r', '').replace('\n', '%0A')
-              print(f'::error title={title}::{text}')
-          m = re.search(r'\* What went wrong:(.*?)(\* Try:|\Z)', log, re.S)
-          emit('Gradle build failed', m.group(1) if m else log[-3000:])
-          errs = [l for l in log.splitlines() if 'error:' in l or 'ERROR:' in l or 'AAPT' in l][:25]
-          if errs:
-              emit('Compiler errors', '\n'.join(errs))
-          PY
+        shell: bash
+        run: python3 .github/report_error.py build.log
 
       - name: Name the APK
-        run: cp android/app/build/outputs/apk/debug/app-debug.apk nila-alavai.apk
+        run: |
+          mkdir -p out
+          cp android/app/build/outputs/apk/debug/app-debug.apk out/nila-alavai.apk
 
       - uses: actions/upload-artifact@v4
         with:
-          name: nila-alavai-apk
-          path: nila-alavai.apk
+          name: android
+          path: out/
 
-      # A release gives a direct download link that opens on a phone.
-      - name: Publish release
-        uses: softprops/action-gh-release@v2
+  windows:
+    name: Windows app (7, 8, 10, 11)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v5
+
+      - uses: actions/setup-node@v5
+        with:
+          node-version: '20'
+
+      - name: Install Electron and electron-builder
+        working-directory: desktop
+        shell: bash
+        run: npm install --no-audit --no-fund
+
+      # Unsigned build: Windows SmartScreen will ask "Run anyway" on first launch.
+      - name: Build installer and portable exe
+        working-directory: desktop
+        shell: bash
+        env:
+          CSC_IDENTITY_AUTO_DISCOVERY: 'false'
+        run: |
+          set -o pipefail
+          npx electron-builder --win --publish never 2>&1 | tee ../build.log
+
+      - name: Report build error
+        if: failure()
+        shell: bash
+        run: python .github/report_error.py build.log
+
+      - name: Collect exe files
+        shell: bash
+        run: |
+          mkdir -p out
+          cp desktop/release/*.exe out/
+          ls -la out
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: windows
+          path: out/
+
+  release:
+    name: Publish release
+    needs: [apk, windows]
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: out
+          merge-multiple: true
+
+      - run: ls -la out
+
+      # A release gives direct download links for phones and PCs.
+      - uses: softprops/action-gh-release@v2
         with:
           tag_name: v1.0.${{ github.run_number }}
           name: Nila Alavai v1.0.${{ github.run_number }}
-          body: Tap nila-alavai.apk below to download and install on Android.
-          files: nila-alavai.apk
           make_latest: true
+          files: out/*
+          body: |
+            **Android:** tap `nila-alavai.apk` on your phone and install.
+
+            **Windows 7, 8, 10 or 11:**
+            - `Nila-Alavai-Setup-1.0.0.exe` installs the app with Start menu and desktop shortcuts (picks 32-bit or 64-bit automatically).
+            - `Nila-Alavai-Portable-1.0.0.exe` runs without installing, from any folder or USB drive.
+
+            The Windows files are not code-signed, so SmartScreen may show "Windows protected your PC". Click **More info → Run anyway**.

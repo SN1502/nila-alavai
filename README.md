@@ -75,10 +75,28 @@ node scripts/build-single.mjs --inline-react   # nila-alavai.offline.html, fully
 **After changing the web app**, refresh the bundled copy before building:
 
 ```bash
-npm run build:android
+npm run build:apps
 ```
 
 The debug APK is signed with Android's debug key, which is fine for installing on your own phones. To publish on Google Play, create a signing key in Android Studio (**Build → Generate Signed App Bundle / APK**).
+
+## Windows desktop app (Windows 7, 8, 10, 11)
+
+`desktop/` wraps the same offline app in Electron **22**, the last Electron release that still runs on Windows 7 SP1, 8 and 8.1 as well as 10 and 11. Two files are built:
+
+- `Nila-Alavai-Setup-<version>.exe` – installer with Start menu and desktop shortcuts; contains both 32-bit and 64-bit builds and picks the right one.
+- `Nila-Alavai-Portable-<version>.exe` – 32-bit, runs on any of those Windows versions without installing (USB drive friendly).
+
+They are built on GitHub by the same workflow as the APK and attached to the same release. To build on a Windows PC instead:
+
+```bash
+npm run build:apps          # refresh desktop/app/index.html (and the Android copy)
+cd desktop
+npm install
+npm run dist                # output in desktop/release/
+```
+
+The files are not code-signed, so SmartScreen may say "Windows protected your PC" the first time; choose **More info → Run anyway**. Electron 22 no longer gets security updates; that is the trade-off for Windows 7/8 support, and the app only shows its own bundled page (web links open in the normal browser).
 
 ## Project layout
 
@@ -97,7 +115,8 @@ src/
 tests/convert.test.js, tests/price.test.js, tests/charges.test.js, tests/building.test.js
 scripts/build-single.mjs
 android/             Android WebView project (APK)
-.github/workflows/android-apk.yml   builds the APK on GitHub
+desktop/             Windows desktop app (Electron 22)
+.github/workflows/android-apk.yml   builds the APK and Windows exe files on GitHub and publishes a release
 ```
 
 To add a unit, append an entry to `STATIC_UNITS` in `src/lib/units.js` with its size in square feet and a `group`; it appears in the converter, the dropdown and the reference table automatically.

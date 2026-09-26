@@ -35,8 +35,8 @@
 
   --shadow: 0 1px 0 rgba(25, 32, 43, 0.04), 0 8px 24px -16px rgba(25, 32, 43, 0.25);
 
-  --f-display: 'Catamaran', 'Noto Sans Tamil', 'Tamil Sangam MN', 'Latha', system-ui, sans-serif;
-  --f-body: 'Hind Madurai', 'Noto Sans Tamil', 'Tamil Sangam MN', 'Latha', system-ui, sans-serif;
+  --f-display: 'Catamaran', 'Noto Sans Tamil', 'Tamil Sangam MN', 'Nirmala UI', 'Latha', system-ui, 'Segoe UI', sans-serif;
+  --f-body: 'Hind Madurai', 'Noto Sans Tamil', 'Tamil Sangam MN', 'Nirmala UI', 'Latha', system-ui, 'Segoe UI', sans-serif;
   --f-num: 'IBM Plex Mono', ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
 
   --gutter: 16px;

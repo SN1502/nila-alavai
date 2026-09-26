@@ -10,7 +10,8 @@
     "preview": "vite preview",
     "test": "node --test tests/*.test.js",
     "build:single": "node scripts/build-single.mjs",
-    "build:android": "node scripts/build-single.mjs --inline-react && node -e \"require('fs').copyFileSync('dist-single/nila-alavai.offline.html','android/app/src/main/assets/index.html')\""
+    "build:android": "npm run build:apps",
+    "build:apps": "node scripts/build-single.mjs --inline-react && node -e \"const fs=require('fs');const src='dist-single/nila-alavai.offline.html';fs.copyFileSync(src,'android/app/src/main/assets/index.html');fs.mkdirSync('desktop/app',{recursive:true});fs.copyFileSync(src,'desktop/app/index.html')\""
   },
   "dependencies": {
     "react": "18.3.1",
